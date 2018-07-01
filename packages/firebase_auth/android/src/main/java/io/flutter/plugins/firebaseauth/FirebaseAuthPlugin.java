@@ -104,6 +104,9 @@ public class FirebaseAuthPlugin implements MethodCallHandler {
       case "updateProfile":
         handleUpdateProfile(call, result);
         break;
+      case "updateEmail":
+        handleUpdateEmail(call, result);
+        break;
       case "startListeningAuthState":
         handleStartListeningAuthState(call, result);
         break;
@@ -305,6 +308,28 @@ public class FirebaseAuthPlugin implements MethodCallHandler {
     firebaseAuth
         .getCurrentUser()
         .updateProfile(builder.build())
+        .addOnCompleteListener(
+            new OnCompleteListener<Void>() {
+              @Override
+              public void onComplete(@NonNull Task<Void> task) {
+                if (!task.isSuccessful()) {
+                  Exception e = task.getException();
+                  result.error(ERROR_REASON_EXCEPTION, e.getMessage(), null);
+                } else {
+                  result.success(null);
+                }
+              }
+            });
+  }
+
+  private void handleUpdateEmail(MethodCall call, final Result result) {
+    @SuppressWarnings("unchecked")
+    Map<String, String> arguments = (Map<String, String>) call.arguments;
+    String email = arguments.get("email");
+
+    firebaseAuth
+        .getCurrentUser()
+        .updateEmail(email)
         .addOnCompleteListener(
             new OnCompleteListener<Void>() {
               @Override
